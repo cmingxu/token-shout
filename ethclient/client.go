@@ -18,10 +18,10 @@ import (
 type Client struct {
 	config *Config
 
-	// notifier
+	// notifier is the main engine of all notification dispatched
 	noti *notifier.Notifier
 
-	// rpc client
+	// rpc client connect to eth rpc API
 	rpcClient *rpc.Client
 
 	// eth address watched, event emit if balance changed
@@ -67,7 +67,7 @@ func (c *Client) Start() error {
 			return err
 		}
 		for _, addr := range addresses {
-			utils.L.Debugf("start watch address %s", addr)
+			utils.L.Infof("start watch address %s", addr)
 
 			c.balanceCache[addr], err = c.getBalance(addr)
 			if err != nil {
@@ -98,7 +98,7 @@ func (c *Client) Ping() error {
 
 // connect to rpc endpoint
 func (c *Client) connect() (err error) {
-	utils.L.Debugf("ethClient connect to %s", c.config.RpcAddr)
+	utils.L.Infof("ethClient connect to %s", c.config.RpcAddr)
 	c.rpcClient, err = rpc.Dial(c.config.RpcAddr)
 	if err != nil {
 		return err

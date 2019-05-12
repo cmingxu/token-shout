@@ -87,10 +87,10 @@ func (r *Receiver) toAddrMatch(event Event) bool {
 
 // Accept event and spawn new goroutine to post event back to the endpoint.
 func (r *Receiver) Accept(event Event) {
-	utils.L.Debugf("%s accept event %s", r.endpoint, event.Type())
+	utils.L.Infof("%s accept event %s", r.endpoint, event.Type())
 
 	sendFunc := func(event Event) error {
-		utils.L.Debugf("sending event %s to %s", event.Type(), r.endpoint)
+		utils.L.Infof("sending event %s to %s", event.Type(), r.endpoint)
 		eventBytes, err := EncodeEvent(event)
 		if err != nil {
 			utils.L.Error(err)
@@ -105,13 +105,13 @@ func (r *Receiver) Accept(event Event) {
 		post.Header.Set("User-Agent", HTTP_USER_AGENT)
 		resp, err := r.client.Do(post)
 		if err != nil {
-			utils.L.Debugf("ErrShouldRetry : %v", err)
+			utils.L.Errorf("ErrShouldRetry : %v", err)
 			return ErrShouldRetry
 		}
 
 		// should retry if endpoint does not return status code 200
 		if resp.StatusCode != http.StatusOK {
-			utils.L.Debugf("ErrShouldRetry statusCode: %v", resp.StatusCode)
+			utils.L.Errorf("ErrShouldRetry statusCode: %v", resp.StatusCode)
 			return ErrShouldRetry
 		}
 
@@ -131,17 +131,17 @@ func (r *Receiver) Accept(event Event) {
 			case <-backoffInterval.C:
 				err := sendFunc(event)
 				if err == nil {
-					utils.L.Debugf("sendFunc err: %v", err)
+					utils.L.Errorf("sendFunc err: %v", err)
 					return
 				} else {
 					// stop retrying if serious error happend
 					if !ShouldRetry(err) {
-						utils.L.Debugf("retry err: %v", err)
+						utils.L.Errorf("retry err: %v", err)
 						return
 					}
 
 					if retryRemains <= 0 {
-						utils.L.Debugf("stop posting event after n retries")
+						utils.L.Infof("stop posting event after n retries")
 						return
 					}
 

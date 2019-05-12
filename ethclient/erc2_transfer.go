@@ -45,7 +45,6 @@ func (c *Client) erc20TranserWatcher(ctx context.Context, errCh chan error) {
 			errCh <- err
 			return
 		case eventLog := <-ch:
-			utils.L.Debug(eventLog)
 			if abiBytes, found := addressABIMap[eventLog.Address]; found {
 				tokenAbi, err := abi.JSON(strings.NewReader(string(abiBytes)))
 				if err != nil {
@@ -61,19 +60,15 @@ func (c *Client) erc20TranserWatcher(ctx context.Context, errCh chan error) {
 
 				err = tokenAbi.Unpack(&transferEvent, "Transfer", eventLog.Data)
 				if err != nil {
-					utils.L.Debugf("Failed to unpack transfer event, try next event")
+					utils.L.Errorf("failed to unpack transfer event, try next event")
 					continue
 				}
 
 				transferEvent.From = common.BytesToAddress(eventLog.Topics[1].Bytes())
 				transferEvent.To = common.BytesToAddress(eventLog.Topics[2].Bytes())
 
-				utils.L.Info("From", transferEvent.From.Hex())
-				utils.L.Info("To", transferEvent.To.Hex())
-				utils.L.Info("Value", transferEvent.Value)
-
-				float64Value, _ := weiToEther(transferEvent.Value).Float64()
-				utils.L.Info("Value In Ether", float64Value)
+				utils.L.Infof("receive event log from: %s to:  %s value %+v",
+					transferEvent.From.Hex(), transferEvent.To.Hex(), transferEvent.Value)
 
 				event := notifier.NewERC20LogEvent(map[string]interface{}{
 					"address": eventLog.Address.Hex(),

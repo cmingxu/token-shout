@@ -52,7 +52,7 @@ func (c *Client) balanceCacheSyncer(ctx context.Context, errCh chan error) {
 
 // getBalance call eth rpc and return balance in float64 format
 func (c *Client) getBalance(address string) (float64, error) {
-	utils.L.Debugf("get balance for address %s", address)
+	utils.L.Infof("get balance for address %s", address)
 
 	var balance hexutil.Big
 	err := c.rpcClient.CallContext(context.Background(), &balance,

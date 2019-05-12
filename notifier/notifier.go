@@ -56,7 +56,7 @@ func (notifier *Notifier) Start(ctx context.Context) {
 		case event, _ := <-notifier.eventChan:
 			for name, receiver := range notifier.receivers {
 				if receiver.Match(event) {
-					utils.L.Debugf(name, "match", event)
+					utils.L.Info(name, " match ", event)
 					receiver.Accept(event)
 				}
 			}
